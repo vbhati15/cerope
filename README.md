@@ -141,12 +141,14 @@ cerope/
 ## 🎯 Key Screens
 
 ### Register Screen
+![Register](./assets/screenshots/register.png)
 - Email and password registration
 - Password confirmation with real-time validation
 - Terms of Service agreement checkbox
 - Beautiful gradient header with logo
 
 ### Login Screen
+![Login](./assets/screenshots/login.png)
 - Email/phone and password login
 - Remember me option
 - Forgot password link
@@ -154,6 +156,8 @@ cerope/
 - Language selector
 
 ### Home Screen
+![Home](./assets/screenshots/home.png)
+
 - **Header**: App header with centered profile icon
 - **Search**: StyleBot search bar with camera icon
 - **Weekly Calendar**: Outfit planning calendar
@@ -164,6 +168,7 @@ cerope/
 - **Bottom Navigation**: Fixed navigation bar with app sections
 
 ### Profile Screen
+![Profile](./assets/screenshots/profile.png)
 - User profile information
 - Menu options: My Orders, Saved Items, Settings, Help & Support
 - Gradient header with back navigation
