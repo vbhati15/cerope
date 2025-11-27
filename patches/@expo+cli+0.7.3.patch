@@ -1,0 +1,78 @@
+diff --git a/node_modules/@expo/cli/build/src/utils/glob.js b/node_modules/@expo/cli/build/src/utils/glob.js
+index 77498d5..f325e14 100644
+--- a/node_modules/@expo/cli/build/src/utils/glob.js
++++ b/node_modules/@expo/cli/build/src/utils/glob.js
+@@ -8,7 +8,8 @@ exports.wrapGlobWithTimeout = wrapGlobWithTimeout;
+ var _glob = require("glob");
+ function everyMatchAsync(pattern, options) {
+     return new Promise((resolve, reject)=>{
+-        const g = new _glob.Glob(pattern, options);
++        const Glob = _glob.Glob || _glob;
++        const g = new Glob(pattern, options);
+         let called = false;
+         const callback = (er, matched)=>{
+             if (called) return;
+@@ -16,14 +17,20 @@ function everyMatchAsync(pattern, options) {
+             if (er) reject(er);
+             else resolve(matched);
+         };
+-        g.on("error", callback);
+-        g.on("end", (matches)=>callback(null, matches)
+-        );
++        if (g && typeof g.on === 'function') {
++            g.on("error", callback);
++            g.on("end", (matches)=>callback(null, matches)
++            );
++        } else {
++            // Fallback: use glob function directly
++            _glob(pattern, options, callback);
++        }
+     });
+ }
+ function anyMatchAsync(pattern, options) {
+     return new Promise((resolve, reject)=>{
+-        const g = new _glob.Glob(pattern, options);
++        const Glob = _glob.Glob || _glob;
++        const g = new Glob(pattern, options);
+         let called = false;
+         const callback = (er, matched)=>{
+             if (called) return;
+@@ -31,18 +38,26 @@ function anyMatchAsync(pattern, options) {
+             if (er) reject(er);
+             else resolve(matched);
+         };
+-        g.on("error", callback);
+-        g.on("match", (matched)=>{
+-            // We've disabled using abort as it breaks the entire glob package across all instances.
+-            // https://github.com/isaacs/node-glob/issues/279 & https://github.com/isaacs/node-glob/issues/342
+-            // For now, just collect every match.
+-            // g.abort();
+-            callback(null, [
+-                matched
+-            ]);
+-        });
+-        g.on("end", (matches)=>callback(null, matches)
+-        );
++        if (g && typeof g.on === 'function') {
++            g.on("error", callback);
++            g.on("match", (matched)=>{
++                // We've disabled using abort as it breaks the entire glob package across all instances.
++                // https://github.com/isaacs/node-glob/issues/279 & https://github.com/isaacs/node-glob/issues/342
++                // For now, just collect every match.
++                // g.abort();
++                callback(null, [
++                    matched
++                ]);
++            });
++            g.on("end", (matches)=>callback(null, matches)
++            );
++        } else {
++            // Fallback: use glob function directly
++            _glob(pattern, options, (er, matches) => {
++                if (er) reject(er);
++                else resolve(matches && matches.length > 0 ? [matches[0]] : []);
++            });
++        }
+     });
+ }
+ function wrapGlobWithTimeout(query, duration) {
